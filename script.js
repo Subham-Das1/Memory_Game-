@@ -81,3 +81,21 @@ function resetGame() {
 }
 
 createCards();
+
+// CSS Styles
+const style = document.createElement('style');
+style.innerHTML = `
+.cardMatch {
+    visibility: hidden;
+}
+#winMessage, #loseMessage {
+    display: none;
+    font-size: 24px;
+    margin-top: 20px;
+    text-align: center; 
+    position: absolute;
+    top: 50%; 
+    left: 50%;
+    transform: translate(-50%, -50%); 
+}`;
+document.head.appendChild(style);
