@@ -1,101 +1,104 @@
 const symbols = ["😀", "😎", "😜", "😍", "🥳", "🚀", "🎉", "🌈", "😀", "😎", "😜", "😍", "🥳", "🚀", "🎉", "🌈"];
-const maxMoves = 12;
+let cardArray = [];
+let openedCards = [];
+let moveCount = 0;
+let maxMoves = 12;
+let matchedCards = 0;
+let gameOver = false; // Flag to track if the game is over
 
-let moves = 0;
-let shuffledSymbols = [];
-let originalCards = [];
-let openCards = [];
-
-function updateMoveCounter() {
-    document.getElementById('moveCounter').textContent = moves;
-}
-
+// Shuffle the symbols array using Fisher-Yates shuffle algorithm
 function shuffle(array) {
-    for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
+    let currentIndex = array.length, randomIndex;
+
+    while (currentIndex !== 0) {
+        randomIndex = Math.floor(Math.random() * currentIndex);
+        currentIndex--;
+
+        [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
     }
     return array;
 }
 
-function createCards() {
-    shuffledSymbols = shuffle(symbols.slice()); 
-    const cardContainer = document.querySelector('.card-container');
-    cardContainer.innerHTML = ''; 
-    originalCards = []; 
-    shuffledSymbols.forEach(symbol => {
-        let card = document.createElement("div");
-        card.className = "item";
-        card.innerHTML = symbol;
-        originalCards.push(card.cloneNode(true)); 
-        card.onclick = handleCardClick;
+// Initialize the game board
+function initGame() {
+    const cardContainer = document.getElementById('cardContainer');
+    cardContainer.innerHTML = ''; // Clear previous cards
+
+    cardArray = shuffle([...symbols]); // Shuffle the symbols
+
+    cardArray.forEach((symbol, index) => {
+        const card = document.createElement('div');
+        card.classList.add('item');
+        card.dataset.symbol = symbol;
+        card.innerHTML = `<div class="card-front">${symbol}</div><div class="card-back"></div>`;
+        card.addEventListener('click', () => flipCard(card));
         cardContainer.appendChild(card);
     });
+
+    document.getElementById('moveCounter').innerText = moveCount = 0; // Reset move counter
+    matchedCards = 0; // Reset matched cards
+    gameOver = false; // Reset game over flag
+    document.getElementById('winMessage').style.display = 'none'; // Hide win message
+    document.getElementById('loseMessage').style.display = 'none'; // Hide lose message
 }
 
-function handleCardClick() {
-    if (this.classList.contains('open') || this.classList.contains('cardMatch') || moves >= maxMoves) {
-        return;
+// Flip the card and check for match
+function flipCard(card) {
+    if (gameOver || openedCards.length >= 2 || card.classList.contains('open') || card.classList.contains('cardMatch')) {
+        return; // If game is over, prevent any further card clicks
     }
 
-    this.classList.add('open');
-    openCards.push(this);
+    card.classList.add('open');
+    openedCards.push(card);
 
-    if (openCards.length === 2) {
-        moves++;
-        updateMoveCounter();
-
-        const [firstCard, secondCard] = openCards;
-        if (firstCard.innerHTML === secondCard.innerHTML) {
-            setTimeout(() => {
-                openCards.forEach(card => card.classList.add('cardMatch'));
-                openCards = [];
-                if (document.querySelectorAll('.cardMatch').length === symbols.length) {
-                    document.getElementById('winMessage').style.display = 'block';
-                }
-            }, 500);
-        } else {
-            setTimeout(() => {
-                openCards.forEach(card => card.classList.remove('open'));
-                openCards = [];
-                if (moves === maxMoves) {
-                    document.getElementById('loseMessage').style.display = 'block';
-                    document.querySelectorAll('.item').forEach(card => {
-                        card.style.visibility = 'hidden';
-                    });
-                }
-            }, 500);
-        }
+    if (openedCards.length === 2) {
+        checkMatch();
     }
 }
 
+// Check if the two opened cards match
+function checkMatch() {
+    const [firstCard, secondCard] = openedCards;
+
+    if (firstCard.dataset.symbol === secondCard.dataset.symbol) {
+        firstCard.classList.add('cardMatch');
+        secondCard.classList.add('cardMatch');
+        matchedCards += 2;
+        checkWin();
+    } else {
+        setTimeout(() => {
+            firstCard.classList.remove('open');
+            secondCard.classList.remove('open');
+        }, 1000);
+    }
+
+    openedCards = [];
+    updateMoveCount();
+}
+
+// Update the move counter and check if the game is lost
+function updateMoveCount() {
+    moveCount++;
+    document.getElementById('moveCounter').innerText = moveCount;
+
+    if (moveCount >= maxMoves && matchedCards < cardArray.length) {
+        document.getElementById('loseMessage').style.display = 'block';
+        gameOver = true; // Set game over flag to true when losing
+    }
+}
+
+// Check if the game is won
+function checkWin() {
+    if (matchedCards === cardArray.length) {
+        document.getElementById('winMessage').style.display = 'block';
+        gameOver = true; // Set game over flag to true when winning
+    }
+}
+
+// Reset the game
 function resetGame() {
-    moves = 0;
-    updateMoveCounter();
-    document.getElementById('winMessage').style.display = 'none';
-    document.getElementById('loseMessage').style.display = 'none';
-    const cardContainer = document.querySelector('.card-container');
-    cardContainer.innerHTML = ''; 
-    createCards(); 
-    openCards = []; 
+    initGame();
 }
 
-createCards();
-
-// CSS Styles
-const style = document.createElement('style');
-style.innerHTML = `
-.cardMatch {
-    visibility: hidden;
-}
-#winMessage, #loseMessage {
-    display: none;
-    font-size: 24px;
-    margin-top: 20px;
-    text-align: center; 
-    position: absolute;
-    top: 50%; 
-    left: 50%;
-    transform: translate(-50%, -50%); 
-}`;
-document.head.appendChild(style);
+// Start the game on page load
+window.onload = initGame;
