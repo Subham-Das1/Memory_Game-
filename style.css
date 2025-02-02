@@ -200,6 +200,6 @@ b{
         font-size: 1rem;
     }
     .hero{
-        width: max-content;
+        width: 400px;
     }
 }
