@@ -68,8 +68,6 @@ You can play the game directly by visiting the website:
 
 ---
 
-## 👨‍💻 Author
-
 Built using **HTML, CSS, and JavaScript** as a beginner-friendly project.
 
 ---
