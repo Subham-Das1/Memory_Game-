@@ -32,19 +32,20 @@ The goal of the game is to match all pairs of cards by selecting two cards at a 
 ---
 
 ## 📂 Project Structure
+```text
 Memory_Game/
 │
-├── index.html # Game structure
-├── style.css # Game styling
-└── script.js # Game logic
-
+├── index.html   # Game structure
+├── style.css    # Game styling
+└── script.js    # Game logic
+```
 ---
 
 ## 🌐 Live Demo
 
 You can play the game directly by visiting the website:
 
-👉 **[Play Memory Game](https://your-website-link-here.com)**
+👉 **[Play Memory Game](https://subham-das1.github.io/Memory_Game-/)**
 
 --- 
 
